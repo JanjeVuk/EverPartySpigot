@@ -1,0 +1,7 @@
+net\evershell\everpartyspigot\Manager\ConfigurationManager.class
+net\evershell\everpartyspigot\EverPartySpigot.class
+net\evershell\everpartyspigot\Player\Commands\CommandParty.class
+net\evershell\everpartyspigot\Listeners\Commands.class
+net\evershell\everpartyspigot\Manager\PartyManager.class
+net\evershell\everpartyspigot\Events.class
+net\evershell\everpartyspigot\Manager\RedisManager.class

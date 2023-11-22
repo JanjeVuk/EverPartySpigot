@@ -1,0 +1,11 @@
+name: EverPartySpigot
+version: 1.0
+main: net.evershell.everpartyspigot.EverPartySpigot
+api-version: 1.17
+author:
+
+commands:
+  party:
+    description: Manage party commands
+    usage: /<command> [subcommand]
+    permission: everparty.command
