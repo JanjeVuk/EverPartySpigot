@@ -4,4 +4,5 @@ net\evershell\everpartyspigot\Player\Commands\CommandParty.class
 net\evershell\everpartyspigot\Listeners\Commands.class
 net\evershell\everpartyspigot\Manager\PartyManager.class
 net\evershell\everpartyspigot\Events.class
+net\evershell\everpartyspigot\Manager\LanguageManager.class
 net\evershell\everpartyspigot\Manager\RedisManager.class

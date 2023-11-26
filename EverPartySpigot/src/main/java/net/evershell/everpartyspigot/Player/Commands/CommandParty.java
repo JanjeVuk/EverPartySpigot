@@ -1,6 +1,7 @@
 package net.evershell.everpartyspigot.Player.Commands;
 
 import net.evershell.everpartyspigot.Manager.PartyManager;
+import net.evershell.everpartyspigot.Manager.RedisManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -139,10 +140,8 @@ public class CommandParty implements TabExecutor {
 
 
     private void acceptInvite(Player target, String ownerName) {
-        Player sender = Bukkit.getPlayer(partyManager.getInvitationSender(target));
-        if (sender != null && sender.getName().equalsIgnoreCase(ownerName)) {
-            partyManager.acceptInvite(sender, target);
-            partyManager.removePendingInvite(sender, target);
+        Player sender = Bukkit.getPlayer(ownerName);
+        if (sender != null && partyManager.acceptInvite(sender, target)) {
             target.sendMessage(Component.text("Vous avez accepté l'invitation au groupe."));
             sender.sendMessage(Component.text(target.getName() + " a accepté votre invitation au groupe."));
             Bukkit.getLogger().log(Level.INFO, target.getName() + " a accepté l'invitation de " + sender.getName() + " au groupe.");
@@ -153,8 +152,7 @@ public class CommandParty implements TabExecutor {
 
     private void refuseInvite(Player target, String ownerName) {
         Player sender = Bukkit.getPlayer(ownerName);
-        if (sender != null) {
-            partyManager.refuseInvite(sender, target);
+        if (sender != null && partyManager.refuseInvite(sender, target)) {
             target.sendMessage(Component.text("Vous avez refusé l'invitation au groupe."));
             sender.sendMessage(Component.text(target.getName() + " a refusé votre invitation au groupe."));
             Bukkit.getLogger().log(Level.INFO, target.getName() + " a refusé l'invitation de " + sender.getName() + " au groupe.");

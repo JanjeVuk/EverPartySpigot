@@ -1,5 +1,6 @@
 package net.evershell.everpartyspigot.Manager;
 
+import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -116,13 +117,11 @@ public class RedisManager {
     }
 
     public String getInvitationSender(String receiverName) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            List<String> pendingInvites = getPendingInvites(receiverName);
-            if (pendingInvites != null && !pendingInvites.isEmpty()) {
-                // Récupérer le premier sender de la liste des invitations en attente
-                String pendingInvite = pendingInvites.get(0);
-                return pendingInvite.split(":")[1]; // Récupérer le nom du sender à partir de la clé de l'invitation
-            }
+        List<String> pendingInvites = getPendingInvites(receiverName);
+        if (pendingInvites != null && !pendingInvites.isEmpty()) {
+            // Récupérer le premier sender de la liste des invitations en attente
+            String pendingInvite = pendingInvites.get(0);
+            return pendingInvite.split(":")[1]; // Récupérer le nom du sender à partir de la clé de l'invitation
         }
         return null; // Retourner null si aucune invitation en attente pour ce joueur
     }

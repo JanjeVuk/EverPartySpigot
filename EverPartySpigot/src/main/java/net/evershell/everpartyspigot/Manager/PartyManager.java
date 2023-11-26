@@ -1,5 +1,6 @@
 package net.evershell.everpartyspigot.Manager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import java.util.List;
 
@@ -47,16 +48,23 @@ public class PartyManager {
         redisManager.savePendingInvite(sender.getName(), target.getName());
     }
 
-    public void acceptInvite(Player sender, Player target) {
+    public Boolean acceptInvite(Player sender, Player target) {
         String senderName = redisManager.getInvitationSender(target.getName());
         if (senderName != null && senderName.equals(sender.getName())) {
             redisManager.addMemberToGroup(target.getName());
             redisManager.removePendingInvite(senderName, target.getName());
+            return true;
         }
+        return false;
     }
 
-    public void refuseInvite(Player sender, Player target) {
+    public Boolean refuseInvite(Player sender, Player target) {
+        if(redisManager.getInvitationSender(target.getName()) == null){
+            Bukkit.getLogger().warning("no invite pending for this target player");
+            return false;
+        }
         redisManager.removePendingInvite(sender.getName(), target.getName());
+        return true;
     }
 
     public void removePendingInvite(Player sender, Player target) {
