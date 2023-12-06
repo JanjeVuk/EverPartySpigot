@@ -1,0 +1,8 @@
+name: EverPartySpigot
+version: '${project.version}'
+main: net.evershell.everpartyspigot.EverPartySpigot
+api-version: '1.20'
+commands:
+  party:
+    aliases:
+      - group
