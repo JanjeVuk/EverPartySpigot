@@ -9,14 +9,33 @@ import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.*;
 
+
 public class RedisManager {
 
 
+    /**
+     * A JedisPool object for managing connections to Redis.
+     */
     private JedisPool jedisPool;
+    /**
+     * The host variable represents the Redis host.
+     */
     private final String host;
+    /**
+     * Represents the port used for the Redis connection.
+     *
+     * This variable is a private final integer field.
+     */
     private final int port;
+    /**
+     * The password used for Redis connection.
+     * Note: This variable is used to store the password for Redis connection.
+     */
     private final String password;
 
+    /**
+     * The RedisManager class provides methods to manage the Redis connection and perform operations on Redis.
+     */
     public RedisManager(String host, int port, String password) {
         this.host = host;
         this.port = port;
@@ -31,6 +50,11 @@ public class RedisManager {
         this.jedisPool = new JedisPool(poolConfig, host, port, 5000, password);
     }
 
+    /**
+     * Schedule a periodic task to check the Redis connection.
+     * This method creates a new BukkitRunnable that runs periodically to check the Redis connection and perform a simple operation (PING) to verify the connection.
+     * If an exception occurs during the operation, it logs the error and recreates the JedisPool to establish a new connection.
+     */
     private void scheduleRedisConnectionCheck() {
         // Planifier une tâche périodique pour vérifier la connexion Redis
         new BukkitRunnable() {
@@ -49,6 +73,10 @@ public class RedisManager {
         }.runTaskTimerAsynchronously(EverPartySpigot.getInstance(), 0L, 5000L); // Vérifier la connexion toutes les 5 secondes (100 ticks = 5 secondes)
     }
 
+    /**
+     * Recreates the JedisPool by destroying the existing connection pool and creating a new one.
+     * This method is synchronized to ensure thread safety.
+     */
     private synchronized void recreateJedisPool() {
         // Détruire le pool existant
         jedisPool.destroy();
@@ -59,6 +87,11 @@ public class RedisManager {
         Bukkit.getLogger().info("Reconnexion Redis réussie.");
     }
 
+    /**
+     * Saves a group to Redis.
+     *
+     * @param sender the player name of the group creator
+     */
     public void saveGroup(String sender) {
         String groupName = getGroupNameByPlayer(sender);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -71,6 +104,12 @@ public class RedisManager {
     }
 
 
+    /**
+     * Generates a unique group name for saving a group to Redis.
+     *
+     * @param jedis The Jedis instance used to interact with Redis.
+     * @return The generated unique group name.
+     */
     private String generateUniqueGroupName(Jedis jedis) {
         long index = 0;
         String groupName;
@@ -81,7 +120,12 @@ public class RedisManager {
         return groupName;
     }
 
-    // Méthode pour charger les membres d'un groupe depuis Redis
+    /**
+     * Loads the members of a group from Redis.
+     *
+     * @param playerName the name of the player whose group is being loaded
+     * @return a list of group members
+     */
     public List<String> loadGroupMembers(String playerName) {
         String groupName = getGroupNameByPlayer(playerName);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -90,6 +134,12 @@ public class RedisManager {
         }
     }
 
+    /**
+     * Adds a member to a group in Redis.
+     *
+     * @param sender the player name of the group creator
+     * @param target the player name of the member to be added
+     */
     public void addMemberToGroup(String sender, String target) {
         String groupName = getGroupNameByPlayer(sender);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -100,7 +150,11 @@ public class RedisManager {
 
 
 
-    // Méthode pour supprimer un membre d'un groupe dans Redis
+    /**
+     * Removes a member from a group in Redis.
+     *
+     * @param member the name of the member to be removed
+     */
     public void removeMemberFromGroup(String member) {
         String groupName = getGroupNameByPlayer(member);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -122,6 +176,12 @@ public class RedisManager {
         }
     }
 
+    /**
+     * Checks if a player is the leader of a group in Redis.
+     *
+     * @param playerName the name of the player to check
+     * @return true if the player is the leader of a group, false otherwise
+     */
     public boolean isPlayerLeader(String playerName) {
         String groupName = getGroupNameByPlayer(playerName);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -130,6 +190,11 @@ public class RedisManager {
         }
     }
 
+    /**
+     * Deletes a group from Redis.
+     *
+     * @param playerName the name of the player whose group is being deleted
+     */
     public void deleteGroup(String playerName) {
         String groupName = getGroupNameByPlayer(playerName);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -139,6 +204,12 @@ public class RedisManager {
     }
 
 
+    /**
+     * Retrieves the group name associated with the given player name from Redis.
+     *
+     * @param playerName the name of the player
+     * @return the group name if the player is a member of a group, otherwise null
+     */
     public String getGroupNameByPlayer(String playerName) {
         if (playerName == null || playerName.isEmpty()) {
             return null;
@@ -168,30 +239,60 @@ public class RedisManager {
     // Méthode pour vérifier si une invitation est en attente dans Redis
 
 
+    /**
+     * Checks if there is a pending invite from the given sender to the given target.
+     *
+     * @param senderName the name of the sender
+     * @param targetName the name of the target
+     * @return true if there is a pending invite, false otherwise
+     */
     public boolean hasPendingInvite(String senderName, String targetName) {
         try (Jedis jedis = jedisPool.getResource()) {
             return jedis.hexists("pending_invites:" + targetName, "sender:" + senderName);
         }
     }
 
+    /**
+     * Saves a pending invite in Redis.
+     *
+     * @param senderName  the name of the player sending the invite
+     * @param targetName  the name of the player receiving the invite
+     */
     public void savePendingInvite(String senderName, String targetName) {
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.hset("pending_invites:" + targetName, "sender:" + senderName, "true");
         }
     }
 
+    /**
+     * Removes a pending invite from Redis.
+     *
+     * @param senderName the name of the sender of the invite
+     * @param targetName the name of the recipient of the invite
+     */
     public void removePendingInvite(String senderName, String targetName) {
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.hdel("pending_invites:" + targetName, "sender:" + senderName);
         }
     }
 
+    /**
+     * Removes all pending invites for a target player from Redis.
+     *
+     * @param targetName the name of the target player
+     */
     public void removeAllPendingInvites(String targetName) {
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.del("pending_invites:" + targetName);
         }
     }
 
+    /**
+     * Retrieves the list of pending invites for the given target name.
+     *
+     * @param targetName the name of the target player
+     * @return a list of pending invites
+     */
     public List<String> getPendingInvites(String targetName) {
         try (Jedis jedis = jedisPool.getResource()) {
             Map<String, String> invitesMap = jedis.hgetAll("pending_invites:" + targetName);
@@ -199,6 +300,12 @@ public class RedisManager {
         }
     }
 
+    /**
+     * Retrieves the sender of the invitation for the given receiver name.
+     *
+     * @param receiverName the name of the receiver for whom the invitation sender needs to be retrieved
+     * @return the name of the invitation sender, or null if there are no pending invitations for the receiver
+     */
     public String getInvitationSender(String receiverName) {
         List<String> pendingInvites = getPendingInvites(receiverName);
         if (pendingInvites != null && !pendingInvites.isEmpty()) {
@@ -209,6 +316,9 @@ public class RedisManager {
         return null; // Retourner null si aucune invitation en attente pour ce joueur
     }
 
+    /**
+     * Closes the Redis connection pool.
+     */
     // Méthode publique pour fermer le pool de connexion Redis
     public void closeJedisPool() {
         if (jedisPool != null) {

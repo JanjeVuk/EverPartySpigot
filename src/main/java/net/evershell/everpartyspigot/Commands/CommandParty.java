@@ -17,27 +17,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * The CommandParty class implements the TabExecutor interface to handle the /party command.
+ */
 public class CommandParty implements TabExecutor {
 
     private final PartyManager partyManager;
 
+
     /**
-     * Constructor for CommandParty.
+     * Initializes a new instance of the CommandParty class with the specified PartyManager.
      *
-     * @param partyManager The PartyManager instance to handle party-related operations.
+     * @param partyManager The PartyManager instance.
      */
     public CommandParty(PartyManager partyManager) {
         this.partyManager = partyManager;
     }
 
+
     /**
-     * Provides tab-completion possibilities for the command arguments.
+     * Executes the party command.
      *
-     * @param sender The command sender.
-     * @param cmd    The command executed.
-     * @param label  The alias of the command used.
-     * @param args   The arguments provided with the command.
-     * @return A list of possible completions for the command arguments.
+     * @param sender the command sender
+     * @param cmd the command
+     * @param label the command label
+     * @param args the command arguments
+     * @return true if the command was executed successfully, false otherwise
      */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -136,6 +141,12 @@ public class CommandParty implements TabExecutor {
         return true;
     }
 
+    /**
+     * Sends an invitation to a player.
+     *
+     * @param sender the player sending the invite
+     * @param target the player receiving the invite
+     */
     private void sendInvite(Player sender, Player target) {
         TextComponent inviteMessage = Component.text()
                 .append(Component.text("Vous avez reçu une invitation de groupe de "))
@@ -152,6 +163,12 @@ public class CommandParty implements TabExecutor {
     }
 
 
+    /**
+     * Accepts an invitation to join a party.
+     *
+     * @param target The player accepting the invitation
+     * @param ownerName The name of the owner of the party who sent the invitation
+     */
     private void acceptInvite(Player target, String ownerName) {
         Player sender = Bukkit.getPlayer(ownerName);
         if (sender != null && partyManager.acceptInvite(sender, target)) {
@@ -163,6 +180,12 @@ public class CommandParty implements TabExecutor {
         }
     }
 
+    /**
+     * Refuses an invitation to join a party.
+     *
+     * @param target the player who received the invitation
+     * @param ownerName the name of the player who sent the invitation
+     */
     private void refuseInvite(Player target, String ownerName) {
         Player sender = Bukkit.getPlayer(ownerName);
         if (sender != null && partyManager.refuseInvite(sender, target)) {
@@ -176,6 +199,15 @@ public class CommandParty implements TabExecutor {
 
 
 
+    /**
+     * Generates a list of tab completions for the command.
+     *
+     * @param sender the command sender
+     * @param cmd the command being tab completed
+     * @param label the alias of the command being used
+     * @param args the arguments provided for the command
+     * @return a list of tab completions for the command
+     */
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         List<String> completions = new ArrayList<>();
